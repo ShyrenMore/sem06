@@ -1,5 +1,5 @@
 %{
-#include <studio.h>
+#include <stdio.h>
 #include "y.tab.h"    
 %}
 

@@ -30,6 +30,6 @@ run the following commands
 ### Compiling YACC program
 - lex file should be lex_prog.l and yacc file should be yacc_prog.y
 - `$ lex lex_prog.l`
-- `$ yacc yacc_prog.y`
+- `$ yacc -d yacc_prog.y`
 - `$ cc lex.yy.c y.tab.h -ll` or ```$ gcc lex.yy.c y.tab.h -ll ```
 - `$ ./a.out`

@@ -1,5 +1,5 @@
 %{
-#include <studio.h>
+#include <stdio.h>
 #include <stdlib.h>   
 
 int yylex();
@@ -28,6 +28,6 @@ void yyerror(char *msg)
 
 void main()
 {
-    printf("Enter variable name :: ")
+    printf("Enter variable name :: ");
     yyparse();
 }
