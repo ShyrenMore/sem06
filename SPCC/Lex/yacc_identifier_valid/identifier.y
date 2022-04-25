@@ -1,33 +1,31 @@
 %{
-#include <stdio.h>
-#include <stdlib.h>   
-
-int yylex();
-void yyerror(char *s);
+#include<stdio.h>
+int valid = 1;
 %}
 
-%token DIGIT LETTER NL UND
-
-%% 
-
-stmt: variable NL {
-    printf("valid identifier");
-    exit(0);
-};
-
-variable: LETTER alphanumeric;
-
-alphanumeric: LETTER alphanumeric | DIGIT alphanumeric | UND alphanumeric | LETTER | DIGIT | UND;
+%token digit letter
 
 %%
 
-void yyerror(char *msg)
-{
-    printf("Invalid exp %s", msg);
+start: letter s
+
+s: letter s
+   | digit s
+   |
+   ;
+
+%%
+
+int yyerror(){
+  printf("\nnot identifier!\n");
+  valid = 0;
+  return 0;
 }
 
-void main()
-{
-    printf("Enter variable name :: ");
-    yyparse();
+int main(){
+  printf("\nEnter name to be tested for identifier: \n");
+  yyparse();
+  if(valid){
+    printf("\nIt is an identifier!\n");
+  }
 }
