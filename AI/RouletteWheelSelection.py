@@ -1,68 +1,64 @@
-# sauce: https://ebckurera.wordpress.com/2017/10/05/implementing-roulette-wheel-in-python/
+import random
 
-import numpy as np
-import random as rand
- 
-roulette_wheel = np.array((0))
-slot_count = 0
- 
-def init_roul_wheel(value_array):
- 
-    slot_count = 0
-    i=0
-    arrsize = value_array.size
-    while i < arrsize/2:
-        slot_count = slot_count + value_array[2*i+1]
-        i = i + 1
-    roulette_wheel = np.zeros((slot_count),dtype=np.int)
-    #print(roulette_wheel)
-    i = 0
- 
-    while i < arrsize/2:
-        rv = value_array[2*i]
-        bv = value_array[2*i+1]
-        j = 0
-        while j<bv:
-            t = rand.randint(0,slot_count-1)
-            wheel_alloc = roulette_wheel[t]
-            if wheel_alloc == 0:
-                roulette_wheel[t] = rv
-                j = j + 1
-        i = i + 1
-    return (roulette_wheel)
- 
-def spin(rw):
-    slot_count = rw.size
-    randno = rand.randint(0,10000)
-    rot_degree = randno%360
-    rot_unit = 360/slot_count
-    rol_no = (rot_degree - (rot_degree%(rot_unit)))/rot_unit
-    rol_value = rw[int(rol_no)]
-    return rol_value    
- 
-wheel_vector = np.array([10,1,20,2,30,2,40,4,50,5,60,4,70,3,80,2,90,2])
-x = init_roul_wheel(wheel_vector)
-#print (spin(x))
- 
-cal_rounds = 1000000
- 
-results = np.zeros((cal_rounds),dtype=np.int);
- 
-i =0
- 
-while i<cal_rounds:
-    value = spin(x)
-    results[i] = value
-    i = i +1
- 
-unique, counts = np.unique(results, return_counts=True)
-print ("RW Vector", wheel_vector, "\n")
-print ("Roulette Wheel", x)
-print ("Results: ",unique,"\n\t" ,counts)
- 
-i = 0
-while i<counts.size:
-    #print (unique[i], "occured " + str(counts[i]))
-    precentage = (counts[i]*100)/np.sum(counts)
-    print (unique[i]," precentage - ",str(precentage) + ' %','('+str(round(precentage))+')')
-    i = i +1
+
+class RouletteWheel:
+    def __init__(self):
+        self.fitness_vector = []
+        self.cummulative_boundry = []
+        self.fractions = []
+
+    def set_fitness_vector(self, fitness_vector):
+        self.fitness_vector = fitness_vector
+        self.fractions = list()
+        totalsum = 0
+        current_boundry = 0
+        for fitness in fitness_vector:
+            totalsum += fitness
+        for fitness in fitness_vector:
+            current_boundry += fitness/totalsum
+            self.cummulative_boundry.append(current_boundry)
+            self.fractions.append(fitness / totalsum)
+        # print(self.fractions)
+        # print(self.cummulative_boundry)
+
+    def spin(self):
+        num = random.random()
+        index = 0
+        while self.cummulative_boundry[index] < num:
+            index += 1
+        return self.fitness_vector[index]
+
+
+def main():
+    values = input().split(",")
+    fitness_vector = list()
+    for value in values:
+        fitness_vector.append(int(value))
+    rw = RouletteWheel()
+    rw.set_fitness_vector(fitness_vector)
+    freq = dict()
+    for i in range(100):
+        winner = rw.spin()
+        if winner not in freq:
+            freq[winner] = 0
+        old_freq = freq[winner]
+        freq[winner] = old_freq+1
+    for key in freq:
+        print(f"{key} won {freq[key]} times")
+
+
+main()
+
+'''
+1000,1,20,2,30,2,40,4,50,5,60,4,70,3,80,2,90,2
+90 won 6 times
+1000 won 76 times
+70 won 7 times
+80 won 4 times
+30 won 1 times
+40 won 1 times
+2 won 1 times
+50 won 1 times
+60 won 2 times
+5 won 1 times
+'''

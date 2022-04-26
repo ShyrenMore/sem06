@@ -1,125 +1,89 @@
-# Python3 implementation of above approach
-# sauce: https://www.geeksforgeeks.org/uniform-cost-search-dijkstra-for-large-graphs/
-# returns the minimum cost in a vector( if
-# there are multiple goal states)
-def uniform_cost_search(goal, start):
-
-	# minimum cost upto
-	# goal state from starting
-	global graph, cost
-	answer = []
-
-	# create a priority queue
-	queue = []
-
-	# set the answer vector to max value
-	for i in range(len(goal)):
-		answer.append(10**8)
-
-	# insert the starting index
-	queue.append([0, start])
-
-	# map to store visited node
-	visited = {}
-
-	# count
-	count = 0
-
-	# while the queue is not empty
-	while (len(queue) > 0):
-
-		# get the top element of the
-		queue = sorted(queue)
-		p = queue[-1]
-
-		# pop the element
-		del queue[-1]
-
-		# get the original value
-		p[0] *= -1
-
-		# check if the element is part of
-		# the goal list
-		if (p[1] in goal):
-
-			# get the position
-			index = goal.index(p[1])
-
-			# if a new goal is reached
-			if (answer[index] == 10**8):
-				count += 1
-
-			# if the cost is less
-			if (answer[index] > p[0]):
-				answer[index] = p[0]
-
-			# pop the element
-			del queue[-1]
-
-			queue = sorted(queue)
-			if (count == len(goal)):
-				return answer
-
-		# check for the non visited nodes
-		# which are adjacent to present node
-		if (p[1] not in visited):
-			for i in range(len(graph[p[1]])):
-
-				# value is multiplied by -1 so that
-				# least priority is at the top
-				queue.append([(p[0] + cost[(p[1], graph[p[1]][i])]) * -1, graph[p[1]][i]])
-
-		# mark as visited
-		visited[p[1]] = 1
-
-	return answer
+import sys
 
 
-# main function
-if __name__ == '__main__':
+class Graph:
+    def __init__(self):
+        self.adjDict = dict()
+        self.start_node = "S"
+        self.goal_node = "S"
 
-	# create the graph
-	graph, cost = [[] for i in range(8)], {}
+    def add_edge(self, u, v, w):
+        if u not in self.adjDict:
+            self.adjDict[u] = list()
+        self.adjDict[u].append([w, v])
 
-	# add edge
-	graph[0].append(1)
-	graph[0].append(3)
-	graph[3].append(1)
-	graph[3].append(6)
-	graph[3].append(4)
-	graph[1].append(6)
-	graph[4].append(2)
-	graph[4].append(5)
-	graph[2].append(1)
-	graph[5].append(2)
-	graph[5].append(6)
-	graph[6].append(4)
+    def print(self):
+        for key in self.adjDict:
+            print(key)
+            print(self.adjDict[key])
 
-	# add the cost
-	cost[(0, 1)] = 2
-	cost[(0, 3)] = 5
-	cost[(1, 6)] = 1
-	cost[(3, 1)] = 5
-	cost[(3, 6)] = 6
-	cost[(3, 4)] = 2
-	cost[(2, 1)] = 4
-	cost[(4, 2)] = 4
-	cost[(4, 5)] = 3
-	cost[(5, 2)] = 6
-	cost[(5, 6)] = 3
-	cost[(6, 4)] = 7
+    def set_start_node(self, node):
+        self.start_node = node
 
-	# goal state
-	goal = []
+    def set_goal_node(self, node):
+        self.goal_node = node
 
-	# set the goal
-	# there can be multiple goal states
-	goal.append(6)
+    def ucs(self):
+        max_distance = sys.maxsize
 
-	# get the answer
-	answer = uniform_cost_search(goal, 0)
+        q = list()
+        visited = list()
+        q.append([0, self.start_node])
+        # print(q)
+        while q:
+            # print(q)
+            edge = q.pop(0)
+            # print(q)
+            if edge[1] in visited:
+                continue
+            visited.append(edge[1])
+            if edge[1] == self.goal_node:
+                if edge[0] < max_distance:
+                    max_distance = edge[0]
+            edges = []
+            if edge[1] in self.adjDict:
+                edges = self.adjDict[edge[1]]
+            for outEdge in edges:
+                # print(type(edge[0]))
+                # print(type(outEdge[0]))
+                q.append([edge[0] + outEdge[0], outEdge[1]])
+                q.sort()
+        print(f"min distance to goal node is: {max_distance}")
 
-	# print the answer
-	print("Minimum cost from 0 to 6 is = ", answer[0])
 
-# This code is contributed by mohit kumar 29
+def main():
+    print("enter input")
+    graph = Graph()
+    while True:
+        tokens = input().split()
+        parent = tokens[0]
+        if parent == "-1":
+            break
+        children = tokens[1:]
+        for child in children:
+            # print(child)
+            # print(child.split(","))
+            graph.add_edge(parent, child.split(
+                ",")[0], int(child.split(",")[1]))
+    # graph.print()
+    start_node = input("enter start node: ")
+    goal_node = input("enter goal node: ")
+    graph.set_start_node(start_node)
+    graph.set_goal_node(goal_node)
+    graph.ucs()
+    # graph.print()
+
+
+main()
+
+'''
+enter input
+S A,1 B,2
+A C,2 D,3
+B E,4 G,6
+C G,3
+-1
+enter start node: S
+enter goal node: G
+min distance to goal node is: 6
+'''
